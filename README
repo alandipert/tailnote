@@ -1,0 +1,6 @@
+tailnote file [regex]
+
+Tail a file and show notifications using Growl or Mumbles for lines matching regex.
+If a regex is not provided, this will notify about all lines.
+
+example: tailnote log/development.log Error

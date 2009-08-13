@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# On Macs, you need to install growlnotify: http://growl.info/documentation/growlnotify.php
+# and put it in your PATH somewhere.
+
+function usage() {
+  echo "tailnote file [regex]"
+  echo 
+  echo "Tail a file and show notifications using Growl or Mumbles for lines matching regex."
+  echo "If a regex is not provided, this will notify about all lines."
+  echo 
+  echo "example: tailnote log/development.log Error"
+  echo
+  exit
+}
+
+function notify() {
+  if [ `/usr/bin/which -s growlnotify` ]; then
+    # on linux
+    "`/usr/bin/which mumbles-send`" "$1" "$2" &
+  else
+    # on a mac
+    "`/usr/bin/which growlnotify`" -t "$1"  -m "$2" -w &
+  fi
+}
+
+case $# in 
+1) re=".*" ;;
+2) re=$2 ;;
+*) usage ;;
+esac
+
+`/usr/bin/which tail` -n0 -f $1 | while read line; do
+  match=$(echo "$line" | /usr/bin/sed -n /"$re"/p)
+  if [ -n "$match" ]; then
+    notify "$1" "$match"
+  fi
+  echo $line
+done
